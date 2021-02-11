@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
  * Description:  A payment gateway for Sellix Pay
  * Author: Sellix
  * Author URI: https://sellix.io
- * Version: 1.1.0
+ * Version: 1.0.0
  */
 
 add_action('plugins_loaded', 'sellix_gateway_load', 0);
@@ -90,13 +90,13 @@ function sellix_gateway_load()
                     Payment Method <abbr class="required" title="required">*</abbr>
                 </label>
                 <select name="payment_gateway" class="sellix-payment-gateway-select">
-                    <?php if ($this->paypal){ ?><option value="PayPal">PayPal</option><?php } ?>
-                    <?php if ($this->bitcoin){ ?><option value="Bitcoin">Bitcoin</option><?php } ?>
-                    <?php if ($this->litecoin){ ?><option value="Litecoin">Litecoin</option><?php } ?>
-                    <?php if ($this->ethereum){ ?><option value="Ethereum">Ethereum</option><?php } ?>
-                    <?php if ($this->bitcoin_cash){ ?><option value="Bitcoin Cash">Bitcoin Cash</option><?php } ?>
-                    <?php if ($this->skrill){ ?><option value="Skrill">Skrill</option><?php } ?>
-                    <?php if ($this->perfectmoney){ ?><option value="PerfectMoney">PerfectMoney</option><?php } ?>
+                    <?php if ($this->paypal){ ?><option value="PAYPAL">PayPal</option><?php } ?>
+                    <?php if ($this->bitcoin){ ?><option value="BITCOIN">Bitcoin</option><?php } ?>
+                    <?php if ($this->litecoin){ ?><option value="LITECOIN">Litecoin</option><?php } ?>
+                    <?php if ($this->ethereum){ ?><option value="EUTHEREUM">Ethereum</option><?php } ?>
+                    <?php if ($this->bitcoin_cash){ ?><option value="BITCOINCASH">Bitcoin Cash</option><?php } ?>
+                    <?php if ($this->skrill){ ?><option value="SKRILL">Skrill</option><?php } ?>
+                    <?php if ($this->perfectmoney){ ?><option value="PERFECTMONEY">PerfectMoney</option><?php } ?>
                 </select>
             </div>
             <?php
@@ -247,11 +247,11 @@ function sellix_gateway_load()
 
             $curl = curl_init('https://dev.sellix.io/v1/payments');
             curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
+            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($params));
             curl_setopt($curl, CURLOPT_USERAGENT, 'Sellix WooCommerce (PHP ' . PHP_VERSION . ')');
-            curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Basic ' . base64_encode($this->email . ':' . $this->api_key)]);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $this->api_key]);
             curl_setopt($curl, CURLOPT_TIMEOUT, 10);
-            curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($curl);
 
@@ -263,7 +263,7 @@ function sellix_gateway_load()
             $response = json_decode($response, true);
 
             if ($response['error']) {
-                return wc_add_notice(__('Payment error:', 'woothemes') . 'Sellix API error: ' . join($response['error']), 'error');
+                return wc_add_notice(__('Payment error:', 'woothemes') . 'Sellix API error: ' . $response['error'], 'error');
             } else {
                 return $response['data']['url'];
             }
@@ -330,9 +330,9 @@ function sellix_gateway_load()
         {
             $curl = curl_init('https://dev.sellix.io/v1/payments/' . $order_id);
             curl_setopt($curl, CURLOPT_USERAGENT, 'Sellix WooCommerce (PHP ' . PHP_VERSION . ')');
-            curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Basic ' . base64_encode($this->email . ':' . $this->api_key)]);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $this->api_key]);
             curl_setopt($curl, CURLOPT_TIMEOUT, 10);
-            curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($curl);
 
