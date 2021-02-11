@@ -48,7 +48,7 @@ function sellix_gateway_load()
             global $woocommerce;
 
             $this->id = 'sellix';
-            $this->icon = apply_filters('woocommerce_sellix_icon', plugins_url() . '/selly-woocommerce/assets/sellix.png');
+            $this->icon = apply_filters('woocommerce_sellix_icon', plugins_url() . '/sellix-woocommerce/assets/sellix.png');
             $this->method_title = __('Sellix', 'woocommerce');
             $this->has_fields = true;
             $this->webhook_url = add_query_arg('wc-api', 'sellix_webhook_handler', home_url('/'));
