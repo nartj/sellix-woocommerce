@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
  * Description:  A payment gateway for Sellix Pay
  * Author: Sellix
  * Author URI: https://sellix.io
- * Version: 1.0.0
+ * Version: 1.0.1
  */
 
 add_action('plugins_loaded', 'sellix_gateway_load', 0);
