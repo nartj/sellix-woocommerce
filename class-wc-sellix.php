@@ -304,6 +304,7 @@ function sellix_gateway_load()
             global $woocommerce;
 
             $data = json_decode(file_get_contents('php://input'), true);
+            error_log(print_r($data, true));
             $sellix_order = $this->valid_sellix_order($data['uniqid'], $_REQUEST['wc_id']);
 
             if ($sellix_order) {
@@ -346,7 +347,7 @@ function sellix_gateway_load()
                 return null;
             } else {
                 $this->complete_order($wc_id);
-                return $body;
+                return $body['data']['order'];
             }
         }
 
