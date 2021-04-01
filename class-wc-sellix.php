@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
  * Description:  A payment gateway for Sellix Pay
  * Author: Sellix
  * Author URI: https://sellix.io
- * Version: 1.0.1
+ * Version: 1.0.2
  */
 
 add_action('plugins_loaded', 'sellix_gateway_load', 0);
@@ -304,13 +304,11 @@ function sellix_gateway_load()
             global $woocommerce;
 
             $data = json_decode(file_get_contents('php://input'), true);
-            error_log(print_r($data, true));
             $sellix_order = $this->valid_sellix_order($data['data']['uniqid'], $_REQUEST['wc_id']);
 
             if ($sellix_order) {
                 $order = wc_get_order($_REQUEST['wc_id']);
                 $this->log->add('sellix', 'Order #' . $_REQUEST['wc_id'] . ' (' . $sellix_order['uniqid'] . '). Status: ' . $sellix_order['status']);
-                error_log(print_r($sellix_order, true));
                 if ($sellix_order['status'] == 'COMPLETED') {
                     $order->payment_complete();
                 } elseif ($sellix_order['status'] == 'WAITING_FOR_CONFIRMATIONS') {
@@ -339,8 +337,6 @@ function sellix_gateway_load()
 
             curl_close($curl);
             $body = json_decode($response, true);
-
-            error_log(print_r($body, true));
 
             if ($body['error']) {
                 mail(get_option('admin_email'), sprintf(__('Unable to verify order via Sellix Pay API', 'woocommerce'), $order_uniqid));
