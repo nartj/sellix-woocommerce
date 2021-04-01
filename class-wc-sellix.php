@@ -310,7 +310,7 @@ function sellix_gateway_load()
                 $order = wc_get_order($_REQUEST['wc_id']);
                 $this->log->add('sellix', 'Order #' . $_REQUEST['wc_id'] . ' (' . $sellix_order['uniqid'] . '). Status: ' . $sellix_order['status']);
                 error_log(print_r($sellix_order, true));
-                if ((int)$sellix_order['status'] == 'COMPLETED') {
+                if ($sellix_order['status'] == 'COMPLETED') {
                     $order->payment_complete();
                 } elseif ($sellix_order['status'] == 'WAITING_FOR_CONFIRMATIONS') {
                     $order->update_status('on-hold', sprintf(__('Awaiting crypto currency confirmations', 'woocommerce')));
@@ -326,9 +326,9 @@ function sellix_gateway_load()
          * @access public
          * @return boolean
          */
-        function valid_sellix_order($order_id, $wc_id)
+        function valid_sellix_order($order_uniqid, $wc_id)
         {
-            $curl = curl_init('https://dev.sellix.io/v1/payments/' . $order_id);
+            $curl = curl_init('https://dev.sellix.io/v1/orders/' . $order_uniqid);
             curl_setopt($curl, CURLOPT_USERAGENT, 'Sellix WooCommerce (PHP ' . PHP_VERSION . ')');
             curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $this->api_key]);
             curl_setopt($curl, CURLOPT_TIMEOUT, 10);
