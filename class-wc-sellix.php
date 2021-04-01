@@ -309,12 +309,12 @@ function sellix_gateway_load()
             if ($sellix_order) {
                 $order = wc_get_order($_REQUEST['wc_id']);
                 $this->log->add('sellix', 'Order #' . $_REQUEST['wc_id'] . ' (' . $sellix_order['uniqid'] . '). Status: ' . $sellix_order['status']);
-
-                if ($sellix_order['status'] == 'completed') {
+                error_log(print_r($sellix_order, true));
+                if ((int)$sellix_order['status'] == 'COMPLETED') {
                     $order->payment_complete();
-                } elseif ($sellix_order['status'] == 'waiting_for_confirmations') {
+                } elseif ($sellix_order['status'] == 'WAITING_FOR_CONFIRMATIONS') {
                     $order->update_status('on-hold', sprintf(__('Awaiting crypto currency confirmations', 'woocommerce')));
-                } elseif ($sellix_order['status'] == 'partial') {
+                } elseif ($sellix_order['status'] == 'PARTIAL') {
                     $order->update_status('on-hold', sprintf(__('Cryptocurrency payment only partially paid', 'woocommerce')));
                 }
             }
