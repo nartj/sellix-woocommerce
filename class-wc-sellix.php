@@ -339,6 +339,8 @@ function sellix_gateway_load()
             curl_close($curl);
             $body = json_decode($response, true);
 
+            error_log(print_r($body, true));
+
             if ($body['error']) {
                 mail(get_option('admin_email'), sprintf(__('Unable to verify order via Sellix Pay API', 'woocommerce'), $order_id));
                 return null;
