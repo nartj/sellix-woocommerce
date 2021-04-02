@@ -342,15 +342,8 @@ function sellix_gateway_load()
                 mail(get_option('admin_email'), sprintf(__('Unable to verify order via Sellix Pay API', 'woocommerce'), $order_uniqid));
                 return null;
             } else {
-                $this->complete_order($wc_id);
                 return $body['data']['order'];
             }
-        }
-
-        function complete_order($wc_id) {
-            global $woocommerce;
-            $order = wc_get_order($wc_id);
-            $order->update_status('completed');
         }
     }
 }
