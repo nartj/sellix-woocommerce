@@ -304,12 +304,15 @@ function sellix_gateway_load()
             global $woocommerce;
 
             $data = json_decode(file_get_contents('php://input'), true);
-            $sellix_order = $this->valid_sellix_order($data['data']['uniqid'], $_REQUEST['wc_id']);
+            error_log('DATA ' . print_r($data, true));
+            $sellix_order = $this->valid_sellix_order($data['data']['uniqid']);
+            error_log('SELLIX_ORDER ' . print_r($sellix_order, true));
 
             if ($sellix_order) {
                 $order = wc_get_order($_REQUEST['wc_id']);
                 $this->log->add('sellix', 'Order #' . $_REQUEST['wc_id'] . ' (' . $sellix_order['uniqid'] . '). Status: ' . $sellix_order['status']);
                 if ($sellix_order['status'] == 'COMPLETED') {
+                    $this->complete_order($_REQUEST['wc_id']);
                     $order->payment_complete();
                 } elseif ($sellix_order['status'] == 'WAITING_FOR_CONFIRMATIONS') {
                     $order->update_status('on-hold', sprintf(__('Awaiting crypto currency confirmations', 'woocommerce')));
@@ -325,7 +328,7 @@ function sellix_gateway_load()
          * @access public
          * @return boolean
          */
-        function valid_sellix_order($order_uniqid, $wc_id)
+        function valid_sellix_order($order_uniqid)
         {
             $curl = curl_init('https://dev.sellix.io/v1/orders/' . $order_uniqid);
             curl_setopt($curl, CURLOPT_USERAGENT, 'Sellix WooCommerce (PHP ' . PHP_VERSION . ')');
@@ -337,6 +340,7 @@ function sellix_gateway_load()
 
             curl_close($curl);
             $body = json_decode($response, true);
+            error_log('BODY ' . print_r($body, true));
 
             if ($body['error']) {
                 mail(get_option('admin_email'), sprintf(__('Unable to verify order via Sellix Pay API', 'woocommerce'), $order_uniqid));
@@ -344,6 +348,12 @@ function sellix_gateway_load()
             } else {
                 return $body['data']['order'];
             }
+        }
+
+        function complete_order($wc_id) {
+            global $woocommerce;
+            $order = wc_get_order($wc_id);
+            $order->update_status('completed');
         }
     }
 }
