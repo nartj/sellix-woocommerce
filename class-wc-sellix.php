@@ -57,6 +57,7 @@ function sellix_gateway_load()
             $this->init_settings();
 
             $this->title = $this->get_option('title');
+            $this->debug_mode = $this->get_option('debug_mode');
             $this->description = $this->get_option('description');
             $this->email = $this->get_option('email');
             $this->api_key = $this->get_option('api_key');
@@ -148,6 +149,12 @@ function sellix_gateway_load()
                     'type' => 'checkbox',
                     'label' => __('Enable Sellix', 'woocommerce'),
                     'default' => 'yes'
+                ],
+                'debug_mode' => [
+                    'title' => __('Enable/Disable', 'woocommerce'),
+                    'type' => 'checkbox',
+                    'label' => __('Enable Debug Mode', 'woocommerce'),
+                    'default' => 'no'
                 ],
                 'title' => [
                     'title' => __('Title', 'woocommerce'),
@@ -255,6 +262,11 @@ function sellix_gateway_load()
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($curl);
 
+            if ($this->$this->debug_mode)
+                error_log(print_r('Sellix Payment creation concerning order ' .
+                    $order->get_id() . ' returned: ' . $response, true));
+
+
             if (curl_errno($curl)) {
                 return wc_add_notice(__('Payment error:', 'woothemes') . 'Request error: ' . curl_error($curl), 'error');
             }
@@ -282,6 +294,10 @@ function sellix_gateway_load()
             $order = wc_get_order($order_id);
             $payment = $this->generate_sellix_payment($order);
 
+            if ($this->$this->debug_mode)
+                error_log(print_r('Payment process concerning order ' .
+                    $order_id . ' returned: ' . $payment, true));
+
             if ($payment) {
                 return [
                     'result' => 'success',
@@ -304,11 +320,22 @@ function sellix_gateway_load()
             global $woocommerce;
 
             $data = json_decode(file_get_contents('php://input'), true);
+            if ($this->$this->debug_mode)
+                error_log(print_r('Webhook Handler received data: ' . $data, true));
+
             $sellix_order = $this->valid_sellix_order($data['data']['uniqid']);
+            if ($this->$this->debug_mode)
+                error_log(print_r('Concerning Sellix order: ' . $sellix_order, true));
 
             if ($sellix_order) {
+
                 $order = wc_get_order($_REQUEST['wc_id']);
+
+                if ($this->$this->debug_mode)
+                    error_log(print_r('Concerning Wordpress order: ' . $order, true));
+
                 $this->log->add('sellix', 'Order #' . $_REQUEST['wc_id'] . ' (' . $sellix_order['uniqid'] . '). Status: ' . $sellix_order['status']);
+
                 if ($sellix_order['status'] == 'COMPLETED') {
                     $this->complete_order($_REQUEST['wc_id']);
                     $order->payment_complete();
@@ -338,6 +365,9 @@ function sellix_gateway_load()
 
             curl_close($curl);
             $body = json_decode($response, true);
+
+            if ($this->$this->debug_mode)
+                error_log(print_r('Order validation returned: ' . $body, true));
 
             if ($body['error']) {
                 mail(get_option('admin_email'), sprintf(__('Unable to verify order via Sellix Pay API', 'woocommerce'), $order_uniqid));
