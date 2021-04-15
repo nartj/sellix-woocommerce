@@ -262,7 +262,7 @@ function sellix_gateway_load()
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($curl);
 
-            if ($this->$this->debug_mode)
+            if ($this->debug_mode)
                 error_log(print_r('Sellix Payment creation concerning order ' .
                     $order->get_id() . ' returned: ' . $response, true));
 
@@ -294,7 +294,7 @@ function sellix_gateway_load()
             $order = wc_get_order($order_id);
             $payment = $this->generate_sellix_payment($order);
 
-            if ($this->$this->debug_mode)
+            if ($this->debug_mode)
                 error_log(print_r('Payment process concerning order ' .
                     $order_id . ' returned: ' . $payment, true));
 
@@ -320,18 +320,18 @@ function sellix_gateway_load()
             global $woocommerce;
 
             $data = json_decode(file_get_contents('php://input'), true);
-            if ($this->$this->debug_mode)
+            if ($this->debug_mode)
                 error_log(print_r('Webhook Handler received data: ' . $data, true));
 
             $sellix_order = $this->valid_sellix_order($data['data']['uniqid']);
-            if ($this->$this->debug_mode)
+            if ($this->debug_mode)
                 error_log(print_r('Concerning Sellix order: ' . $sellix_order, true));
 
             if ($sellix_order) {
 
                 $order = wc_get_order($_REQUEST['wc_id']);
 
-                if ($this->$this->debug_mode)
+                if ($this->debug_mode)
                     error_log(print_r('Concerning Wordpress order: ' . $order, true));
 
                 $this->log->add('sellix', 'Order #' . $_REQUEST['wc_id'] . ' (' . $sellix_order['uniqid'] . '). Status: ' . $sellix_order['status']);
@@ -366,7 +366,7 @@ function sellix_gateway_load()
             curl_close($curl);
             $body = json_decode($response, true);
 
-            if ($this->$this->debug_mode)
+            if ($this->debug_mode)
                 error_log(print_r('Order validation returned: ' . $body, true));
 
             if ($body['error']) {
