@@ -15,4 +15,5 @@ Download the [latest version](https://github.com/nartj/sellix-woocommerce/releas
 To configure the plugin, go to the administration panel navigate to **WooCommerce > Settings > Checkout > Sellix**.
 * Enter your email and API key
 * Enable the gateway
+* Enable debug mode (works if Wordpress debug mode is activated, see https://wordpress.org/support/article/debugging-in-wordpress/)
 * Enable which payment methods you wish to accept
